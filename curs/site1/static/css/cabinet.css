@@ -1,0 +1,133 @@
+body, html { 
+    width: 100%;
+    height: 100%;
+}
+.main 
+{
+    left:0%;
+    position: relative;
+    min-width: 100%;
+    min-height: 100%;
+    background: linear-gradient(90deg, #83fda1 0%, #fcfcfc 200%);
+}
+
+.id
+{
+    position: absolute;
+}
+
+.navigation
+{
+    position:absolute;
+    width: 90%;
+    margin-left: 5%;
+    margin-top: 2%;
+    height: 10%;
+    background-color: rgb(17, 114, 14);
+    border: 2px solid #ffffff;
+    border-radius: 100px;
+}
+
+.navi_columns
+{
+    display: grid;
+    position:relative;
+    margin-left: 5%;
+    grid-template-columns: repeat(4, 360px);
+    grid-column-gap: 30px;
+    width:90%;
+}
+
+.navi_button
+{
+    position:relative;
+	display: grid;
+	align-items: center;
+    height:50px;
+    background-color: rgb(17, 114, 14);
+    border: 2px solid rgb(17, 114, 14);
+    border-radius: 100px;
+    text-align: center;
+    color: #FFF;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 30px;
+    font-style: normal;
+    line-height: normal;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.lk_field
+{
+    position:absolute;
+    width: 90%;
+    height: 83%;
+    /*background-color: rgb(0, 0, 0);*/
+    margin-top: 8%;
+    margin-left: 5%;
+}
+
+.lk_change
+{
+    left:40%;
+    top:10%;
+    position:relative;
+    width: 60%;
+    height: 90%;
+   /* background-color: rgb(255, 255, 255);*/
+}
+
+.cell
+{
+    display: grid;
+	align-items: center;
+    width:33%;
+    height:50%;
+}
+
+
+.type_image 
+{
+    position: absolute;
+    margin-top:15%;
+    margin-left:12%;
+    width: 200px;
+    height: 200px;
+}
+
+.save
+{
+    cursor: pointer;
+    z-index: 7;
+    position: absolute;
+    top:85%;
+    left:58.5%;
+    text-align: center;
+    color: #FFF;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 26px;
+    font-style: normal;
+    line-height: normal;
+    cursor: pointer;
+    width: 20%;
+    padding-top: 9px;
+    height: 5%;
+    border: 2px solid rgb(255, 255, 255);
+    border-radius: 10px;
+    background:rgb(17, 114, 14);
+}
+
+.errorlabel1
+{
+    position:absolute;
+    top:93%;
+    left:58.5%;
+    visibility: hidden;
+    width:20%;
+    text-align: center;
+    color: #ff0000;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    line-height: normal;
+}

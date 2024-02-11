@@ -1,0 +1,28 @@
+<!doctype html>
+{% load static %}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Похуй, текст</title>
+<link rel="stylesheet" href="{% static 'css/reg.css' %}">
+<link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+</head>
+<body style='overflow-x:hidden; margin:0%'>
+    <div class="main">
+            <div class="window">
+                <div class="main_title">Введите данные для входа</div>
+                <input type="text" placeholder="Логин" style="margin-top:22%" id="login">
+                <input type="password" placeholder="Пароль" style="margin-top:22%" id="third">
+                <div class="showhide" onclick="showPass(3)" id="thirdimage" style="margin-top: -5%;margin-left: 92%;"><img src="{% static "images/hide.png"%}" ></div>
+                <div class="errorlabel" id="error_label" style="margin-left:0%;margin-top:2%;">Ошибка!</div>
+                <div class="regbutton" style="margin-top: 2%; margin-left: 11.2%;" onclick="enter()">Войти</div>
+                <div class="regbutton" style="margin-top: 1%; font-size: 20px; width: 30%;height: 15%; margin-left: 35%;padding: 1px 4px;" onclick="gotoregister()">Зарегистрироваться</div>
+            </div>
+    </div>
+
+    <script src="{% static "js/reg.js"%}"></script>
+</body>
+</html>

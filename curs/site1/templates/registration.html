@@ -1,0 +1,54 @@
+<!doctype html>
+{% load static %}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Похуй, текст</title>
+<link rel="stylesheet" href="{% static 'css/reg.css' %}">
+<link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+</head>
+<body style='overflow-x:hidden; margin:0%'>
+    <div class="main">
+        <div class="main_title">Введите данные для регистрации</div>
+        <div class="window">
+                <p>
+                <input type="text" placeholder="Электронная почта" value="" id="email">
+                <p>
+                    <div class="label">Электронная почта</div>
+                <p>
+                <input type="text" placeholder="Логин" value="" id="login">
+                <p>
+                    <div class="label">Логин</div>
+                <p>
+                <input type="password" placeholder="Пароль" value="" id="first">
+                <p>
+                    <div class="label">Пароль</div>
+                <p>
+                <input type="password" placeholder="Повторите пароль" value="" id="second">
+                <p>
+                    <div class="label">Повторите пароль</div>
+        </div>
+        <div class="halfwindow">
+            <div class="studlect"  onclick="selectstudlect(1)" id="isStudent" value="inactive"><img src="{% static "images/student.png"%}"  style="max-width: 100%"></div>
+            <div class="studlect" style="margin-left: 60%;"  onclick="selectstudlect(2)" id="isLecturer" value="inactive"><img src="{% static "images/lecturer.png"%}" style="max-width: 100%"></div>
+            <div class="custom-select" id="sel1">
+                <select>
+                    <option value="">Open this select menu</option>
+                </select>
+            </div>
+            <div class="halfwindowimage">
+                <div class="showhide" style="margin-top: 5.5%;" onclick="showPass(1)" id="firstimage"><img src="{% static "images/hide.png"%}" ></div>
+                <div class="showhide" style="margin-top: 14.5%;" onclick="showPass(2)" id="secondimage"><img src="{% static "images/hide.png"%}" ></div>
+                <div class="regbutton" onclick="register()">Зарегистрироваться</div>
+                <div class="regbutton" style="margin-top: 1.5%; font-size: 20px; width: 25%;height: 15%; margin-left: 40%;padding: 1px 2px;" onclick="gotoenter()">Войти</div>
+                <div class="errorlabel" id="error_label">Ошибка!</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static "js/reg.js"%}"></script>
+</body>
+</html>
