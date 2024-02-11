@@ -13,13 +13,14 @@
 </head>
 <body style='overflow-x:hidden; margin:0%'>
     <input type="hidden" class="id" value="{{id}}" id="id">
-    <div class="main">
+    <div class="main_cab">
+        <div class="exit" onclick="exit()"><img src="{% static "images/exit.png"%}" ></div>
         <div class="navigation">
             <div class="navi_columns">
             <div class="navi_button" onclick="gotomain()">Главная</div>
             <div class="navi_button" onclick="gotocab()" style="border: 2px solid rgb(255, 255, 255);">Кабинет</div>
             <div class="navi_button" onclick="">Форум</div>
-            <div class="navi_button" onclick="">Курсы</div>
+            <div class="navi_button" onclick="gotocurs()">Курсы</div>
             </div>
         
         </div>

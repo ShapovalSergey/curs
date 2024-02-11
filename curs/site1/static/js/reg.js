@@ -270,8 +270,6 @@ function enter()
               dataType: "json",
               success: (data) => {
                 document.cookie="token="+data['token']+";id="+data['id'];
-                localStorage.setItem('token', data['token']);
-                localStorage.setItem('id', data['id']);
                 var newUrl = "student/"+data['id'];
                 document.location.href = newUrl;
               },
@@ -282,7 +280,19 @@ function enter()
           }
           else if (whois==2)
           {
-            document.location.href="lecturer/"+usrid;
+            $.ajax({
+              url: "user/"+usrid,
+              type: "GET",
+              dataType: "json",
+              success: (data) => {
+                document.cookie="token="+data['token']+";id="+data['id'];
+                var newUrl = "lecturer/"+data['id'];
+                document.location.href = newUrl;
+              },
+              error: (error) => {
+                  console.log(error);
+              }
+            });
           }
         }
         

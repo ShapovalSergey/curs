@@ -1,13 +1,107 @@
 function gotocab()
 {
     id=document.getElementById("id").getAttribute("value");
-    document.location.href="/student/"+id+"/lk";
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/lk";
+}
+
+function backtochap()
+{
+    id=document.getElementById("id").getAttribute("value");
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5];
+}
+
+function backtotopic()
+{
+    id=document.getElementById("id").getAttribute("value");
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6];
+}
+
+function backtocurs()
+{
+    id=document.getElementById("id").getAttribute("value");
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4];
+}
+
+function backtochapter()
+{
+    id=document.getElementById("id").getAttribute("value");
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5];
+}
+
+function gotocurs()
+{
+    id=document.getElementById("id").getAttribute("value");
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/lk/course";
+}
+function gotocd(cd_id)
+{
+  id=document.getElementById("id").getAttribute("value");
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/lk/course/"+cd_id;
+}
+
+function gotochap(chap_id)
+{
+  id=document.getElementById("id").getAttribute("value");
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+chap_id;
+}
+
+function gotocreatechapter()
+{
+  id=document.getElementById("id").getAttribute("value");
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+"new";
+}
+
+function gotochangechap(chap_id)
+{
+  id=document.getElementById("id").getAttribute("value");
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+chap_id+"_change";
+}
+
+function gotocreatetopic()
+{
+  id=document.getElementById("id").getAttribute("value");
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+"new";
+}
+
+function gotochangetopic(topic_id)
+{
+  id=document.getElementById("id").getAttribute("value");
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+topic_id+"_change";
+}
+
+
+
+function gotochangecd(cd_id)
+{
+  id=document.getElementById("id").getAttribute("value");
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+cd_id+"_change";
+}
+
+function gotocreatecurs()
+{
+    id=document.getElementById("id").getAttribute("value");
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/lk/course/new";
 }
 
 function gotomain()
 {
     id=document.getElementById("id").getAttribute("value");
-    document.location.href="/student/"+id;
+    var local = location.pathname.split("/");
+    document.location.href="/"+local[1]+"/"+local[2];
 }
 
 function showPass()
@@ -91,7 +185,8 @@ function save()
                             console.log(error);
                         }
                       });
-                      document.location.href="/student/"+id;
+                      var local = location.pathname.split("/");
+                      document.location.href="/"+local[1]+"/"+local[2];
                 }
             },
             error: (error) => {
@@ -99,4 +194,303 @@ function save()
             }
           });
     }
+}
+
+function exit()
+{
+
+  $.ajax({
+    url: "/endtoken/",
+    type: "POST",
+    dataType: "json",
+    async: false,
+    success: (data) => {
+      console.log("success");
+    },
+    error: (error) => {
+        console.log(error);
+    }
+  });
+  document.location.href="/enter"
+}
+
+function createdisc()
+{
+    var error = document.getElementById("error_label"); 
+    error.style.visibility="hidden";
+    var name = document.getElementById("disc_name"); 
+    if (name.value=="") 
+    {
+        error.style.visibility="visible";
+        error.textContent="Отсутствует название дисциплины!";
+        setTimeout(function(){
+          error.style.visibility="hidden";
+      }, 2500);
+    }
+    else
+    {
+      $.ajax({
+        url: "/getdiscname/",
+        type: "GET",
+        dataType: "json",
+        async: false,
+        data:{
+          'name':name.value,
+        },
+        success: (data) => {
+          var check=data['check'];
+          if(check==0)
+          {
+            error.style.visibility="visible";
+            error.textContent="Такая дисцплина уже существует!";
+            setTimeout(function(){
+              error.style.visibility="hidden";
+          }, 2500);
+          }
+          else
+          {
+            $.ajax({
+              url: "/adddisc/",
+              type: "POST",
+              dataType: "json",
+              async: false,
+              data:{
+                'name':name.value,
+              },
+              success: (data) => {
+                console.log(success);
+              },
+              error: (error) => {
+                  console.log(error);
+              }
+            });
+            slct = document.getElementById("sel"); 
+            var opt = document.createElement('option');
+            opt.value=slct.length;
+            opt.innerHTML = name.value;
+            slct.appendChild(opt)
+            slct.value=slct.length-1;
+            name.value="";
+          }
+        },
+        error: (error) => {
+            console.log(error);
+        }
+      });
+
+
+    }
+}
+
+function savenewconcdisc()
+{
+    var error = document.getElementById("error_label1"); 
+    error.style.visibility="hidden";
+    var disc_name = document.getElementById("sel"); 
+    var id=document.getElementById("id"); 
+    var dir_name = document.getElementById("sel1"); 
+    var desc = document.getElementById("disc_desc"); 
+    if (disc_name.value=="") 
+    {
+        error.style.visibility="visible";
+        error.textContent="Отсутствует дисциплина!";
+        setTimeout(function(){
+          error.style.visibility="hidden";
+      }, 2500);
+    }
+    else if (dir_name.value=="")
+    {
+      error.style.visibility="visible";
+      error.textContent="Отсутствует направление!";
+      setTimeout(function(){
+        error.style.visibility="hidden";
+    }, 2500);
+    }
+    else 
+    {
+      var cd_id=document.getElementById("cd_id"); 
+      $.ajax({
+        url: "/addconcdisc/",
+        type: "POST",
+        dataType: "json",
+        async: false,
+        data:{
+          'disc_name':disc_name.value,
+          'dir_name':dir_name.value,
+          'desc':desc.value,
+          'id': id.value,
+          'cd_id': cd_id.value,
+        },
+        success: (data) => {
+          console.log(success);
+        },
+        error: (error) => {
+            console.log(error);
+        }
+      });
+      var local = location.pathname.split("/");
+      document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/lk/course";
+    }
+}
+
+function delete_cd(id)
+{
+  if (confirm("Вы точно хотите удалить дисциплину?\n(данное действие нельзя отменить)"))
+  {
+  user_id=document.getElementById("id"); 
+  $.ajax({
+    url: "/deleteconcdisc/",
+    type: "POST",
+    dataType: "json",
+    async: false,
+    data:{
+      'conc_id': id,
+      'id':user_id.value,
+    },
+    success: (data) => {
+      console.log(success);
+    },
+    error: (error) => {
+        console.log(error);
+    }
+  });
+  window.location.reload();
+  }
+}
+
+function delete_chap(id)
+{
+  if (confirm("Вы точно хотите удалить раздел?\n(данное действие нельзя отменить)"))
+  {
+  user_id=document.getElementById("id"); 
+  $.ajax({
+    url: "/deletechapter/",
+    type: "POST",
+    dataType: "json",
+    async: false,
+    data:{
+      'chap_id': id,
+      'id':user_id.value,
+    },
+    success: (data) => {
+      console.log(success);
+    },
+    error: (error) => {
+        console.log(error);
+    }
+  });
+  window.location.reload();
+  }
+}
+
+
+
+function savenewchap()
+{
+    var error = document.getElementById("error_label"); 
+    error.style.visibility="hidden";
+    var id=document.getElementById("id"); 
+    var cd_id=document.getElementById("cd_id");
+    var name = document.getElementById("chap_name"); 
+    if (name.value=="") 
+    {
+        error.style.visibility="visible";
+        error.textContent="Отсутствует название!";
+        setTimeout(function(){
+          error.style.visibility="hidden";
+      }, 2500);
+    }
+    else 
+    {
+      var chap_id=document.getElementById("chap_id"); 
+      $.ajax({
+        url: "/addchap/",
+        type: "POST",
+        dataType: "json",
+        async: false,
+        data:{
+          'name':name.value,
+          'cd_id':cd_id.value,
+          'chap_id':chap_id.value,
+          'id': id.value,
+        },
+        success: (data) => {
+          console.log(success);
+        },
+        error: (error) => {
+            console.log(error);
+        }
+      });
+      var local = location.pathname.split("/");
+      document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5];
+    }
+}
+
+
+
+function savenewtopic()
+{
+    var error = document.getElementById("error_label"); 
+    error.style.visibility="hidden";
+    var id=document.getElementById("id"); 
+    var cd_id=document.getElementById("cd_id");
+    var topic_id=document.getElementById("topic_id");
+    var name = document.getElementById("topic_name"); 
+    if (name.value=="") 
+    {
+        error.style.visibility="visible";
+        error.textContent="Отсутствует название!";
+        setTimeout(function(){
+          error.style.visibility="hidden";
+      }, 2500);
+    }
+    else 
+    {
+      var chap_id=document.getElementById("chap_id"); 
+      $.ajax({
+        url: "/addtopic/",
+        type: "POST",
+        dataType: "json",
+        async: false,
+        data:{
+          'name':name.value,
+          'cd_id':cd_id.value,
+          'chap_id':chap_id.value,
+          'id': id.value,
+          'topic_id':topic_id.value,
+        },
+        success: (data) => {
+          console.log(success);
+        },
+        error: (error) => {
+            console.log(error);
+        }
+      });
+      backtotopic();
+    }
+}
+
+function delete_topic(id)
+{
+  if (confirm("Вы точно хотите удалить тему?\n(данное действие нельзя отменить)"))
+  {
+  user_id=document.getElementById("id"); 
+  $.ajax({
+    url: "/deletetopic/",
+    type: "POST",
+    dataType: "json",
+    async: false,
+    data:{
+      'topic_id': id,
+      'id':user_id.value,
+    },
+    success: (data) => {
+      console.log(success);
+    },
+    error: (error) => {
+        console.log(error);
+    }
+  });
+  window.location.reload();
+  }
 }
