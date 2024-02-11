@@ -18,6 +18,12 @@ function backtotopic()
     var local = location.pathname.split("/");
     document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6];
 }
+function gototopic(topic_id)
+{
+    id=document.getElementById("id").getAttribute("value");
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+topic_id;
+}
 
 function backtocurs()
 {
@@ -31,6 +37,20 @@ function backtochapter()
     id=document.getElementById("id").getAttribute("value");
     var local = location.pathname.split("/");
     document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5];
+}
+function backtotask()
+{
+    id=document.getElementById("id").getAttribute("value");
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+local[7];
+}
+
+
+function gotocreatetask()
+{
+  id=document.getElementById("id").getAttribute("value");
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+local[7]+"/new";
 }
 
 function gotocurs()
@@ -81,7 +101,12 @@ function gotochangetopic(topic_id)
   document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+topic_id+"_change";
 }
 
-
+function gotochangetask(task_id)
+{
+  id=document.getElementById("id").getAttribute("value");
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+local[7]+"/"+task_id+"_change";
+}
 
 function gotochangecd(cd_id)
 {
@@ -482,6 +507,97 @@ function delete_topic(id)
     async: false,
     data:{
       'topic_id': id,
+      'id':user_id.value,
+    },
+    success: (data) => {
+      console.log(success);
+    },
+    error: (error) => {
+        console.log(error);
+    }
+  });
+  window.location.reload();
+  }
+}
+
+
+
+function savenewtask()
+{
+    var error = document.getElementById("error_label"); 
+    error.style.visibility="hidden";
+    var id=document.getElementById("id"); 
+    var cd_id=document.getElementById("cd_id");
+    var topic_id=document.getElementById("topic_id");
+    var chap_id=document.getElementById("chap_id"); 
+    var task_id=document.getElementById("task_id");
+    var type = document.getElementById("sel_type"); 
+    var diff = document.getElementById("sel_diff");
+    var quest= document.getElementById("quest");
+    var rightans= document.getElementById("right").value;
+    var falseans= document.getElementById("false").value;
+
+    rans=rightans.split(";");
+    fans=falseans.split(";");
+
+    if (quest.value=="") 
+    {
+        error.style.visibility="visible";
+        error.textContent="Отсутствует текст вопроса!";
+        setTimeout(function(){
+          error.style.visibility="hidden";
+      }, 2500);
+    }
+    else if (rightans=="") 
+    {
+        error.style.visibility="visible";
+        error.textContent="Отсутствуют правильные ответы!";
+        setTimeout(function(){
+          error.style.visibility="hidden";
+      }, 2500);
+    }
+    else 
+    {
+      $.ajax({
+        url: "/addtask/",
+        type: "POST",
+        dataType: "json",
+        async: false,
+        data:{
+          'quest':quest.value,
+          'type':type.value,
+          'diff':diff.value,
+          'cd_id':cd_id.value,
+          'chap_id':chap_id.value,
+          'id': id.value,
+          'topic_id':topic_id.value,
+          'task_id':task_id.value,
+          'rightans':rans,
+          'falseans':fans,
+        },
+        success: (data) => {
+          console.log(success);
+        },
+        error: (error) => {
+            console.log(error);
+        }
+      });
+      backtotask();
+    }
+}
+
+function delete_task(id)
+{
+  if (confirm("Вы точно хотите удалить вопрос?\n(данное действие нельзя отменить)"))
+  {
+  user_id=document.getElementById("id"); 
+  $.ajax({
+    url: "/deletetask/",
+    type: "POST",
+    dataType: "json",
+    async: false,
+    data:{
+      'task_id': id,
       'id':user_id.value,
     },
     success: (data) => {

@@ -11,6 +11,9 @@ from .models import Discipline
 from .models import Chapter
 from .models import Topic
 from .models import Task
+from .models import Difficulty
+from .models import Type
+from .models import Lectureranswer
 from django.db import connection
 import string
 import secrets
@@ -83,6 +86,79 @@ def gotochap(request,id,cd_id,chap_id):
             return HttpResponseRedirect('/enter')  
     else:
         return HttpResponseRedirect('/enter')
+    
+def gototopic(request,id,cd_id,chap_id,topic_id): 
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            task = Task.objects.filter(id_top=topic_id).order_by('id_task')
+            task_all = {}
+            task_info=[]
+            for t in task:
+                task_id=t.id_task
+                task_quest=t.question
+                task_diff=Difficulty.objects.only('name').get(id_diff=t.id_diff.id_diff).name
+                task_type=Type.objects.only('name').get(id_type=t.id_type.id_type).name
+                task_all={'task_id':task_id,'task_quest':task_quest,'task_diff':task_diff,"task_type":task_type}
+                task_info.append(task_all)
+
+
+
+            return render(request, "lec_topic.html", {"id": id,"cd_id":cd_id,"task_info":task_info,"chap_id":chap_id,"topic_id":topic_id,})  
+        else:
+            return HttpResponseRedirect('/enter')  
+    else:
+        return HttpResponseRedirect('/enter') 
+
+def changetask(request,id,cd_id,chap_id,topic_id,task_id): 
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            diff=Difficulty.objects.all()
+            types=Type.objects.all()
+            diff_names=[]
+            type_names=[]
+            for d in diff:
+                diff_names.append(d.name)
+            for t in types:
+                type_names.append(t.name)
+            curtask=Task.objects.get(id_task=task_id)
+            task_type=Type.objects.only('name').get(id_type=curtask.id_type.id_type).name
+            task_diff=Difficulty.objects.only('name').get(id_diff=curtask.id_diff.id_diff).name
+            question=curtask.question
+            rans=Lectureranswer.objects.filter(is_right=True,id_task=curtask.id_task)
+            fans=Lectureranswer.objects.filter(is_right=False,id_task=curtask.id_task)
+            ranswer=""
+            fanswer=""
+            for r in rans:
+                ranswer+=r.answer
+                ranswer+=";"
+            for f in fans:
+                fanswer+=f.answer
+                fanswer+=";"
+            
+            return render(request, "task_create.html", {"id": id,"cd_id":cd_id,"chap_id":chap_id,"topic_id":topic_id,"task_id":task_id,"diff_names":diff_names,"type_names":type_names,"question":question,"ranswer":ranswer,"fanswer":fanswer,"task_type":task_type,"task_diff":task_diff})  
+        else:
+            return HttpResponseRedirect('/enter')  
+    else:
+        return HttpResponseRedirect('/enter') 
+
+
+
+def createtask(request,id,cd_id,chap_id,topic_id): 
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            diff=Difficulty.objects.all()
+            types=Type.objects.all()
+            diff_names=[]
+            type_names=[]
+            for d in diff:
+                diff_names.append(d.name)
+            for t in types:
+                type_names.append(t.name)
+            return render(request, "task_create.html", {"id": id,"cd_id":cd_id,"chap_id":chap_id,"topic_id":topic_id,"diff_names":diff_names,"type_names":type_names,})  
+        else:
+            return HttpResponseRedirect('/enter')  
+    else:
+        return HttpResponseRedirect('/enter') 
 
 def change_curs(request,id,cd_id):
     if Token.objects.filter(id_user=id).count()!=0:
@@ -363,6 +439,19 @@ def deletetopic(request):
 
 
 @csrf_exempt      
+def deletetask(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'POST':
+            id = request.POST.get('id')  
+            task = request.POST.get('task_id')  
+            if Token.objects.filter(id_user=id).count()!=0:
+                if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+                    Task.objects.get(id_task=task).delete()
+    return HttpResponse("POST request")
+
+
+@csrf_exempt      
 def addconcdisc(request):
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     if is_ajax:
@@ -441,6 +530,53 @@ def addtopic(request):
                 newtopic=Topic.objects.get(id_top=topic_id)
                 newtopic.name=topic_name
                 newtopic.save()
+            return HttpResponse("POST request")
+        
+@csrf_exempt      
+def addtask(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'POST':
+            cd_id = request.POST.get('cd_id')  
+            task_id = request.POST.get('task_id') 
+            chap_id=request.POST.get('chap_id') 
+            topic_id=request.POST.get('topic_id') 
+            quest=request.POST.get('quest') 
+            type=request.POST.get('type') 
+            diff=request.POST.get('diff') 
+            rightans=request.POST.getlist('rightans[]') 
+            falseans=request.POST.getlist('falseans[]') 
+            disc = Discipline.objects.get(id_disc=Concretediscipline.objects.only('id_disc').get(id_conc_disc=cd_id).id_disc.id_disc)
+            if task_id=="":
+                newtask=Task(question=quest,id_diff=Difficulty.objects.get(name=diff),id_type=Type.objects.get(name=type),id_top=Topic.objects.get(id_top=topic_id),id_chap=chap_id,id_conc_disc=cd_id,id_disc=disc.id_disc)
+                newtask.save()
+                for ans in rightans:
+                    if ans!="":
+                        a=Lectureranswer(is_right=True,id_task=newtask,id_top=newtask.id_top.id_top,id_chap=newtask.id_chap,id_conc_disc=newtask.id_conc_disc,id_disc=newtask.id_disc,answer=ans) 
+                        a.save()  
+                if falseans[0]!="":
+                    for ans in falseans:
+                        if ans!="":
+                            a=Lectureranswer(is_right=False,id_task=newtask,id_top=newtask.id_top.id_top,id_chap=newtask.id_chap,id_conc_disc=newtask.id_conc_disc,id_disc=newtask.id_disc,answer=ans) 
+                            a.save()        
+            else:
+                newtask=Task.objects.get(id_task=task_id)
+                newtask.question=quest
+                newtask.id_diff=Difficulty.objects.get(name=diff)
+                newtask.id_type=Type.objects.get(name=type)
+                newtask.save()
+                Lectureranswer.objects.filter(id_task=newtask.id_task).delete()
+                for ans in rightans:
+                    if ans!="":
+                        a=Lectureranswer(is_right=True,id_task=newtask,id_top=newtask.id_top.id_top,id_chap=newtask.id_chap,id_conc_disc=newtask.id_conc_disc,id_disc=newtask.id_disc,answer=ans) 
+                        a.save()  
+                if falseans[0]!="":
+                    for ans in falseans:
+                        if ans!="":
+                            a=Lectureranswer(is_right=False,id_task=newtask,id_top=newtask.id_top.id_top,id_chap=newtask.id_chap,id_conc_disc=newtask.id_conc_disc,id_disc=newtask.id_disc,answer=ans) 
+                            a.save()  
+
+
             return HttpResponse("POST request")
 
 @csrf_exempt      

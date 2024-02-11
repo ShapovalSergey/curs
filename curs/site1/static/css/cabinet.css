@@ -183,6 +183,21 @@ body, html {
     align-items: center;
 }
 
+.task_row
+{
+    position:relative;
+    display: grid;
+    grid-template-columns: repeat(8, 12.5%);
+    grid-template-rows: repeat(1, 100%);
+    width: 90%;
+    margin-left: 5%;
+    height:8%;
+    max-height: 8%;
+    background-color: rgb(17, 114, 14);
+    border: 1px solid rgb(255, 255, 255);
+    border-radius: 10px;
+    align-items: center;
+}
 
 .create
 {
