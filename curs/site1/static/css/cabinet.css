@@ -235,7 +235,7 @@ body, html {
     word-wrap: break-word;
     text-align: center;
     vertical-align: middle;
-
+    text-decoration:underline;
 
     color: #FFF;
     font-family: 'Montserrat', sans-serif;
@@ -278,7 +278,22 @@ body, html {
 }
 
 
+.test_name
+{
+    grid-column-start: 4;
+    grid-column-end: 4;
+    grid-row: 1;
+    word-wrap: break-word;
+    text-align: center;
 
+    color: #FFF;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    font-style:italic;
+    text-decoration:underline;
+    cursor:pointer;
+    line-height: normal;
+}
 
 
 

@@ -25,6 +25,13 @@ function gototopic(topic_id)
     document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+topic_id;
 }
 
+function backtotickets()
+{
+    id=document.getElementById("id").getAttribute("value");
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6];
+}
+
 function backtocurs()
 {
     id=document.getElementById("id").getAttribute("value");
@@ -64,6 +71,26 @@ function gotocd(cd_id)
   id=document.getElementById("id").getAttribute("value");
   var local = location.pathname.split("/");
   document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/lk/course/"+cd_id;
+}
+function gotocdtests(cd_id)
+{
+  id=document.getElementById("id").getAttribute("value");
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/lk/course/"+cd_id+"/tests";
+}
+
+function gotocreateticket()
+{
+  id=document.getElementById("id").getAttribute("value");
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/new";
+}
+
+function gotocdtickets(cd_id)
+{
+  id=document.getElementById("id").getAttribute("value");
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/lk/course/"+cd_id+"/tickets";
 }
 
 function gotochap(chap_id)

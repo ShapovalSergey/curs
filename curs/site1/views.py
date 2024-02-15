@@ -13,6 +13,8 @@ from .models import Topic
 from .models import Task
 from .models import Difficulty
 from .models import Type
+from .models import Test
+from .models import Ticket
 from .models import Lectureranswer
 from django.db import connection
 import string
@@ -65,6 +67,48 @@ def gotocd(request,id,cd_id):
             return HttpResponseRedirect('/enter')  
     else:
         return HttpResponseRedirect('/enter') 
+
+def gotocdtests(request,id,cd_id): 
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            test = Test.objects.filter(id_conc_disc=cd_id).order_by('id_test')
+            test_all = {}
+            test_info=[]
+            for t in test:
+                test_id=t.id_test
+                test_name=t.name
+                
+                test_all={'test_id':test_id,'test_name':test_name}
+                test_info.append(test_all)
+
+
+            title=Discipline.objects.only('name').get(id_disc=Concretediscipline.objects.get(id_conc_disc=cd_id).id_disc.id_disc).name
+            return render(request, "lec_cd_tests.html", {"id": id,"cd_id":cd_id,"test_info":test_info,"title":title})  
+        else:
+            return HttpResponseRedirect('/enter')  
+    else:
+        return HttpResponseRedirect('/enter') 
+
+def gotocdtickets(request,id,cd_id): 
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            tick = Ticket.objects.filter(id_conc_disc=cd_id).order_by('id_tick')
+            tick_all = {}
+            tick_info=[]
+            for t in tick:
+                tick_id=t.id_tick
+                
+                tick_all={'tick_id':tick_id}
+                tick_info.append(tick_all)
+
+            title=Discipline.objects.only('name').get(id_disc=Concretediscipline.objects.get(id_conc_disc=cd_id).id_disc.id_disc).name
+
+            return render(request, "lec_cd_tickets.html", {"id": id,"cd_id":cd_id,"tick_info":tick_info,"title":title})  
+        else:
+            return HttpResponseRedirect('/enter')  
+    else:
+        return HttpResponseRedirect('/enter') 
+
 
 def gotochap(request,id,cd_id,chap_id): 
     if Token.objects.filter(id_user=id).count()!=0:
@@ -311,6 +355,15 @@ def newchap(request,id,cd_id):
     else:
         return HttpResponseRedirect('/enter')  
     
+def newticket(request,id,cd_id):
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            return render(request, "ticket_create.html",{"id":id,"cd_id":cd_id})
+        else:
+            return HttpResponseRedirect('/enter')   
+    else:
+        return HttpResponseRedirect('/enter')  
+
 def gotonewtopic(request,id,cd_id,chap_id):
     if Token.objects.filter(id_user=id).count()!=0:
         if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
