@@ -296,16 +296,82 @@ body, html {
 }
 
 
+.tickettask_field
+{
+    position:absolute;
+    overflow:hidden;
+    overflow-y: scroll;
+    width: 90%;
+    height: 55%;
+    max-height: 75%;
+    /*background-color: rgb(0, 0, 0);*/
+    margin-top: 18%;
+    margin-left: 5%;
+}
+
+.addtask_row
+{
+    position:relative;
+    display: grid;
+    grid-template-columns: repeat(8, 12.5%);
+    grid-template-rows: repeat(1, 100%);
+    width: 50%;
+    margin-left: 25%;
+    height:10%;
+    max-height: 8%;
+    background-color: #56f586;
+    border: 1px solid rgb(17, 114, 14);
+    border-radius:5px;
+    align-items: center;
+}
+
+.addtask_text
+{
+    grid-column-start: 1;
+    grid-column-end: 5;
+    grid-row: 1;
+    word-wrap: break-word;
+    text-align: center;
+
+    color: #000;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-style:normal;
+    line-height: normal;
+}
+
+.addtask_delete
+{
+    grid-column-start: 8;
+    grid-column-end: 8;
+    grid-row: 1;
+    word-wrap: break-word;
+    text-align: center;
+
+    color: #000;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-style:italic;
+    text-decoration:underline;
+    cursor:pointer;
+    line-height: normal;
+}
 
 
+.addtask_points
+{
+    grid-column-start: 6;
+    grid-column-end: 6;
+    grid-row: 1;
+    word-wrap: break-word;
+    text-align: center;
 
-
-
-
-
-
-
-
+    color: #000;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-style:normal;
+    line-height: normal;
+}
 
 
 

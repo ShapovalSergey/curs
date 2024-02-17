@@ -15,9 +15,11 @@ from .models import Difficulty
 from .models import Type
 from .models import Test
 from .models import Ticket
+from .models import Tickettasks
 from .models import Lectureranswer
 from django.db import connection
 import string
+import random
 import secrets
 from django.http import HttpResponseBadRequest, JsonResponse, HttpResponse
 from django.http import HttpResponseRedirect
@@ -67,6 +69,36 @@ def gotocd(request,id,cd_id):
             return HttpResponseRedirect('/enter')  
     else:
         return HttpResponseRedirect('/enter') 
+
+def gototicket(request,id,cd_id,tick_id):
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            task_used_info=[]
+            tt_ids=[]
+            tt=Tickettasks.objects.filter(id_tick=tick_id)
+            for t in tt:
+                task_id=Task.objects.get(id_task=t.id_task.id_task).id_task
+                task_quest=Task.objects.get(id_task=t.id_task.id_task).question
+                task_points=t.value
+                task_used={'task_id':task_id,'task_quest':task_quest,'task_points':task_points}
+                task_used_info.append(task_used)
+                tt_ids.append(task_id)
+            tasks=Task.objects.filter(id_conc_disc=cd_id).exclude(id_task__in=tt_ids)
+            task_all = {}
+            task_info=[]
+            for t in tasks:
+                task_id=t.id_task
+                task_quest=t.question
+                task_all={'task_id':task_id,'task_quest':task_quest}
+                task_info.append(task_all)
+
+
+
+            return render(request, "ticket_create.html",{"id":id,"cd_id":cd_id,"task_info":task_info,"task_used_info":task_used_info,"tick_id":tick_id})
+        else:
+            return HttpResponseRedirect('/enter')   
+    else:
+        return HttpResponseRedirect('/enter')  
 
 def gotocdtests(request,id,cd_id): 
     if Token.objects.filter(id_user=id).count()!=0:
@@ -358,7 +390,38 @@ def newchap(request,id,cd_id):
 def newticket(request,id,cd_id):
     if Token.objects.filter(id_user=id).count()!=0:
         if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
-            return render(request, "ticket_create.html",{"id":id,"cd_id":cd_id})
+            tasks=Task.objects.filter(id_conc_disc=cd_id)
+            task_all = {}
+            task_info=[]
+            for t in tasks:
+                task_id=t.id_task
+                task_quest=t.question
+                task_all={'task_id':task_id,'task_quest':task_quest}
+                task_info.append(task_all)
+
+
+
+            return render(request, "ticket_create.html",{"id":id,"cd_id":cd_id,"task_info":task_info,"tick_id":"tick_id"})
+        else:
+            return HttpResponseRedirect('/enter')   
+    else:
+        return HttpResponseRedirect('/enter')  
+
+def gotogenerateticket(request,id,cd_id):
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            tasks=Task.objects.filter(id_conc_disc=cd_id)
+            task_all = {}
+            task_info=[]
+            for t in tasks:
+                task_id=t.id_task
+                task_quest=t.question
+                task_all={'task_id':task_id,'task_quest':task_quest}
+                task_info.append(task_all)
+
+
+
+            return render(request, "ticket_generate.html",{"id":id,"cd_id":cd_id,"task_info":task_info,"tick_id":"tick_id"})
         else:
             return HttpResponseRedirect('/enter')   
     else:
@@ -429,7 +492,39 @@ def getmail(request,id):
             else:
                 check=1
             return JsonResponse({'check':check })
-        
+
+def getticketsinfo(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'GET':
+            task_amount = request.GET.get('task_amount')    
+            easy_amount = request.GET.get('easy_amount')    
+            middle_amount = request.GET.get('middle_amount')    
+            hard_amount = request.GET.get('hard_amount')    
+            cd_id = request.GET.get('cd_id')  
+            tasks=Task.objects.filter(id_conc_disc=cd_id)
+            easy=Task.objects.filter(id_conc_disc=cd_id,id_diff=3)
+            middle=Task.objects.filter(id_conc_disc=cd_id,id_diff=2)
+            hard=Task.objects.filter(id_conc_disc=cd_id,id_diff=1)
+            if int(task_amount)>tasks.count():
+                check_tasks_amount=0
+            else:
+                check_tasks_amount=1
+            if int(easy_amount)>easy.count():
+                check_easy_amount=0
+            else:
+                check_easy_amount=1
+            if int(middle_amount)>middle.count():
+                check_middle_amount=0
+            else:
+                check_middle_amount=1
+            if int(hard_amount)>hard.count():
+                check_hard_amount=0
+            else:
+                check_hard_amount=1
+            return JsonResponse({'check_tasks_amount':check_tasks_amount,'check_easy_amount':check_easy_amount,'check_middle_amount':check_middle_amount,'check_hard_amount':check_hard_amount, })
+
+
 def getdiscname(request):
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     if is_ajax:
@@ -452,7 +547,92 @@ def adddisc(request):
             newdisc = Discipline(name=name)
             newdisc.save()
             return HttpResponse("POST request")
+        
+@csrf_exempt      
+def generateticket(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'POST':  
+            task_amount = request.POST.get('task_amount')  
+            easy_amount = request.POST.get('easy_amount')    
+            middle_amount = request.POST.get('middle_amount')    
+            hard_amount = request.POST.get('hard_amount') 
+            easy_points = request.POST.get('easy_points')    
+            middle_points = request.POST.get('middle_points')    
+            hard_points = request.POST.get('hard_points')    
+            cd_id = request.POST.get('cd_id')  
+            id = request.POST.get('id')  
+            check = request.POST.get('check')  
+            user=User.objects.get(id_user=id)
+            cd=Concretediscipline.objects.get(id_conc_disc=cd_id)
+            c = connection.cursor()
+            c.execute("BEGIN")
+            c.callproc("CreateTicket", [cd.id_disc.name,cd.id_dir.name,user.login])
+            c.execute("COMMIT") 
+            c.close()  
+            newticket=Ticket.objects.filter(id_conc_disc=cd_id).order_by('-id_tick')[0]
+            if check==0:
+                easy=random.sample(list(Task.objects.filter(id_conc_disc=cd_id,id_diff=3)),int(easy_amount))
+                middle=random.sample(list(Task.objects.filter(id_conc_disc=cd_id,id_diff=2)),int(middle_amount))
+                hard=random.sample(list(Task.objects.filter(id_conc_disc=cd_id,id_diff=1)),int(hard_amount))
+                for i in range(len(easy_amount)):
+                    zadacha=Task.objects.get(id_task=easy[i].id_task)
+                    newtt=Tickettasks(id_task=zadacha,id_tick=newticket,id_top=zadacha.id_top.id_top,id_chap=zadacha.id_chap,id_conc_disc=cd_id,id_disc=cd.id_disc.id_disc,value=easy_points)
+                    newtt.save()
+                for i in range(len(middle_amount)):
+                    zadacha=Task.objects.get(id_task=middle[i].id_task)
+                    newtt=Tickettasks(id_task=zadacha,id_tick=newticket,id_top=zadacha.id_top.id_top,id_chap=zadacha.id_chap,id_conc_disc=cd_id,id_disc=cd.id_disc.id_disc,value=middle_points)
+                    newtt.save()
+                for i in range(len(hard_amount)):
+                    zadacha=Task.objects.get(id_task=hard[i].id_task)
+                    newtt=Tickettasks(id_task=zadacha,id_tick=newticket,id_top=zadacha.id_top.id_top,id_chap=zadacha.id_chap,id_conc_disc=cd_id,id_disc=cd.id_disc.id_disc,value=hard_points)
+                    newtt.save()
+            else:
+                tasks=random.sample(list(Task.objects.filter(id_conc_disc=cd_id)),int(task_amount))
+                for i in range(int(task_amount)):
+                    zadacha=Task.objects.get(id_task=tasks[i].id_task)
+                    if zadacha.id_diff.id_diff==1:
+                        cur_value=hard_points
+                    elif zadacha.id_diff.id_diff==2:
+                        cur_value=middle_points
+                    elif zadacha.id_diff.id_diff==3:
+                        cur_value=easy_points
+                    newtt=Tickettasks(id_task=zadacha,id_tick=newticket,id_top=zadacha.id_top.id_top,id_chap=zadacha.id_chap,id_conc_disc=cd_id,id_disc=cd.id_disc.id_disc,value=cur_value)
+                    newtt.save()
+            return JsonResponse({'tick_id':newticket.id_tick, })
 
+@csrf_exempt      
+def addnewticket(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'POST':
+            id = request.POST.get('id')
+            cd_id = request.POST.get('cd_id')  
+            tasks_id= request.POST.getlist('tasks_id[]')  
+            tasks_point= request.POST.getlist('tasks_point[]') 
+            tick_id = request.POST.get('tick_id')  
+            user=User.objects.get(id_user=id)
+            cd=Concretediscipline.objects.get(id_conc_disc=cd_id)
+            if tick_id=="tick_id":
+                c = connection.cursor()
+                c.execute("BEGIN")
+                c.callproc("CreateTicket", [cd.id_disc.name,cd.id_dir.name,user.login])
+                c.execute("COMMIT") 
+                c.close()  
+                newticket=Ticket.objects.filter(id_conc_disc=cd_id).order_by('-date_reg')[0]
+                for i in range(len(tasks_point)):
+                    zadacha=Task.objects.get(id_task=tasks_id[i])
+                    newtt=Tickettasks(id_task=zadacha,id_tick=newticket,id_top=zadacha.id_top.id_top,id_chap=zadacha.id_chap,id_conc_disc=cd_id,id_disc=cd.id_disc.id_disc,value=tasks_point[i])
+                    newtt.save()
+            else:
+                tick_id=int(tick_id)
+                Tickettasks.objects.filter(id_tick=tick_id).delete()
+                for i in range(len(tasks_point)):
+                    zadacha=Task.objects.get(id_task=tasks_id[i])
+                    newtt=Tickettasks(id_task=zadacha,id_tick=Ticket.objects.get(id_tick=tick_id),id_top=zadacha.id_top.id_top,id_chap=zadacha.id_chap,id_conc_disc=cd_id,id_disc=cd.id_disc.id_disc,value=tasks_point[i])
+                    newtt.save()               
+            return HttpResponse("POST request")
+        
 @csrf_exempt      
 def deleteconcdisc(request):
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -501,6 +681,18 @@ def deletetask(request):
             if Token.objects.filter(id_user=id).count()!=0:
                 if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
                     Task.objects.get(id_task=task).delete()
+    return HttpResponse("POST request")
+
+@csrf_exempt      
+def deleteticket(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'POST':
+            id = request.POST.get('id')  
+            tick = request.POST.get('tick_id')  
+            if Token.objects.filter(id_user=id).count()!=0:
+                if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+                    Ticket.objects.get(id_tick=tick).delete()
     return HttpResponse("POST request")
 
 

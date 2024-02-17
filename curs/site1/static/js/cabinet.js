@@ -86,6 +86,19 @@ function gotocreateticket()
   document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/new";
 }
 
+function gotogenerateticket()
+{
+  id=document.getElementById("id").getAttribute("value");
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/generate";
+}
+
+function gototicket(tick_id)
+{
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+tick_id;
+}
+
 function gotocdtickets(cd_id)
 {
   id=document.getElementById("id").getAttribute("value");
@@ -613,6 +626,31 @@ function savenewtask()
     }
 }
 
+function delete_ticket(id)
+{
+  if (confirm("Вы точно хотите удалить билет?\n(данное действие нельзя отменить)"))
+  {
+  user_id=document.getElementById("id"); 
+  $.ajax({
+    url: "/deleteticket/",
+    type: "POST",
+    dataType: "json",
+    async: false,
+    data:{
+      'tick_id': id,
+      'id':user_id.value,
+    },
+    success: (data) => {
+      console.log(success);
+    },
+    error: (error) => {
+        console.log(error);
+    }
+  });
+  window.location.reload();
+  }
+}
+
 function delete_task(id)
 {
   if (confirm("Вы точно хотите удалить вопрос?\n(данное действие нельзя отменить)"))
@@ -635,5 +673,318 @@ function delete_task(id)
     }
   });
   window.location.reload();
+  }
+}
+
+function addtaskticket()
+{
+  var error = document.getElementById("error_label"); 
+  error.style.visibility="hidden";
+  var sel = document.getElementById("sel"); 
+  var points = document.getElementById("points");
+  if(sel.value=="")
+  {
+    error.style.visibility="visible";
+    error.textContent="Не выбран вопрос!";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
+  }
+  else if (points.value=="")
+  {
+    error.style.visibility="visible";
+    error.textContent="Не введены баллы за вопрос!";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
+  }
+  else if(!parseInt(points.value))
+  {
+    error.style.visibility="visible";
+    error.textContent="Неверный формат введенных баллов!";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
+  }
+  else
+  {
+    const tId=sel.value;
+    const tQuestion=sel.options[sel.selectedIndex].text;
+    const rootDiv = document.getElementById("tt_field");
+    const element = document.createElement("div");
+    const text = document.createElement("div");
+    const del = document.createElement("div");
+    const pts = document.createElement("div");
+    text.classList.add("addtask_text");
+    del.classList.add("addtask_delete");
+    pts.classList.add("addtask_points");
+    text.textContent=sel.options[sel.selectedIndex].text;
+    pts.textContent="Баллов за ответ:" + points.value;
+    del.textContent="Удалить";
+    element.setAttribute("points",points.value);
+    element.setAttribute("id","task_"+tId);
+    text.setAttribute("id","text"+tId);
+    del.onclick=function(){deletetaskfromticket(tId,tQuestion);}
+    element.append(text);
+    element.append(pts);
+    element.append(del);
+    element.classList.add('addtask_row');
+    rootDiv.appendChild(element);
+    points.value="";
+    document.getElementById("task_"+tId).remove();
+  }
+}
+
+function deletetaskfromticket(id_task,question)
+{
+  let task_row=document.getElementById("task_"+id_task);
+  task_row.innerHTML='';
+  task_row.remove();
+  const rootDiv = document.getElementById("sel");
+  const element = document.createElement("option");
+  element.setAttribute("value",id_task);
+  element.setAttribute("id","task_"+id_task);
+  element.textContent=question;
+  rootDiv.appendChild(element);
+}
+
+function savenewticket()
+{
+  id_tick=document.getElementById("tick_id").value;
+  var error = document.getElementById("error_label1"); 
+  tickettasks=document.getElementsByClassName("addtask_row")
+  if(tickettasks.length==0)
+  {
+    error.style.visibility="visible";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
+  }
+  else
+  {
+    user_id=document.getElementById("id")
+    cd_id=document.getElementById("cd_id")
+    tasksId=[]
+    taskspoint=[]
+    for (var i = 0; i < tickettasks.length; i++)
+    {
+      tasksId.push(tickettasks[i].getAttribute("id").split("_")[1]);
+      taskspoint.push(tickettasks[i].getAttribute("points"))
+    }
+    $.ajax({
+      url: "/addnewticket/",
+      type: "POST",
+      dataType: "json",
+      async: false,
+      data:{
+        'tasks_id': tasksId,
+        'tasks_point': taskspoint,
+        'id':user_id.value,
+        'cd_id':cd_id.value,
+        'tick_id':id_tick
+      },
+      success: (data) => {
+        console.log(success);
+      },
+      error: (error) => {
+          console.log(error);
+      }
+    });
+
+    backtotickets();
+  }
+}
+
+function generateticket()
+{
+  cd_id=document.getElementById("cd_id")
+  user_id=document.getElementById("id")
+  var error = document.getElementById("error_label"); 
+  task_amount=document.getElementById("task_amount");
+  easy_points=document.getElementById("easy_points");
+  middle_points=document.getElementById("middle_points");
+  hard_points=document.getElementById("hard_points");
+  easy_amount=document.getElementById("easy_amount");
+  middle_amount=document.getElementById("middle_amount");
+  hard_amount=document.getElementById("hard_amount");
+  if(task_amount.value=="")
+  {
+    error.style.visibility="visible";
+    error.textContent="Не указано количество вопросов!";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
+  }
+  else if (!parseInt(task_amount.value))
+  {
+    error.style.visibility="visible";
+    error.textContent="Неверный формат введенного количества задач!";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
+  }
+  else if((easy_points.value=="")||(middle_points.value=="")||(hard_points.value==""))
+  {
+    error.style.visibility="visible";
+    error.textContent="Не указаны баллы на все типы вопросов!";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
+  }
+  else if((!parseInt(easy_points.value))||(!parseInt(middle_points.value))||(!parseInt(hard_points.value)))
+  {
+    error.style.visibility="visible";
+    error.textContent="Неверный формат баллов на типы вопросов!";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
+  }
+  else if((easy_amount.value!="")||(middle_amount.value!="")||(hard_amount.value!=""))
+  {
+    if((!parseInt(easy_amount.value))||(!parseInt(middle_amount.value))||(!parseInt(hard_amount.value)))
+    {
+      error.style.visibility="visible";
+      error.textContent="Неверный формат введенного количества задач на типы вопросов!";
+      setTimeout(function(){
+        error.style.visibility="hidden";
+    }, 2500);
+    }
+    else
+    {
+      if(parseInt(easy_amount.value)+parseInt(middle_amount.value)+parseInt(hard_amount.value)>parseInt(task_amount.value))
+      {
+        error.style.visibility="visible";
+        error.textContent="Суммарное количество разных типов задач больше заданного!";
+        setTimeout(function(){
+          error.style.visibility="hidden";
+      }, 2500);
+      }
+      else if(parseInt(easy_amount.value)+parseInt(middle_amount.value)+parseInt(hard_amount.value)<parseInt(task_amount.value))
+      {
+        error.style.visibility="visible";
+        error.textContent="Суммарное количество разных типов задач меньше заданного!";
+        setTimeout(function(){
+          error.style.visibility="hidden";
+      }, 2500);
+      }
+      else 
+      {
+        $.ajax({
+          url: "/getticketsinfo/",
+          type: "GET",
+          dataType: "json",
+          data:{
+            'task_amount':task_amount.value,
+            'easy_amount':easy_amount.value,
+            'middle_amount':middle_amount.value,
+            'hard_amount':hard_amount.value,
+            'cd_id':cd_id.value
+          },
+          success: (data) => {
+            var tasks=data['check_tasks_amount'];
+            var hard=data['check_hard_amount'];
+            var middle=data['check_middle_amount'];
+            var easy=data['check_easy_amount'];
+            console.log(tasks,hard,middle,easy)
+            if(tasks==0)
+            {
+              error.style.visibility="visible";
+              error.textContent="Указанное количество вопросов превышает имеющееся!";
+              setTimeout(function(){
+                error.style.visibility="hidden";
+            }, 2500);
+            }
+            else if(easy==0)
+            {
+              error.style.visibility="visible";
+              error.textContent="Указанное количество легких вопросов превышает имеющееся!";
+              setTimeout(function(){
+                error.style.visibility="hidden";
+            }, 2500);
+            }
+            else if(middle==0)
+            {
+              error.style.visibility="visible";
+              error.textContent="Указанное количество средних вопросов превышает имеющееся!";
+              setTimeout(function(){
+                error.style.visibility="hidden";
+            }, 2500);
+            }
+            else if(hard==0)
+            {
+              error.style.visibility="visible";
+              error.textContent="Указанное количество трудных вопросов превышает имеющееся!";
+              setTimeout(function(){
+                error.style.visibility="hidden";
+            }, 2500);
+            }
+            else
+            {
+              $.ajax({
+                url: "/generateticket/",
+                type: "POST",
+                dataType: "json",
+                async: false,
+                data:{
+                  'task_amount':task_amount.value,
+                  'easy_amount':easy_amount.value,
+                  'middle_amount':middle_amount.value,
+                  'hard_amount':hard_amount.value,
+                  'easy_points':easy_points.value,
+                  'middle_points':middle_points.value,
+                  'hard_points':hard_points.value,
+                  'cd_id':cd_id.value,
+                  'id':user_id.value,
+                  'check':0
+                },
+                success: (data) => {
+                  alert("Билет успешно сгенерирован! Вы будет перенаправлены в окно для просмотра и изменения созданного билета. Билет уже создан, его не обязательно сохранять.");
+                  var tick_id=data['tick_id'];
+                  var local = location.pathname.split("/");
+                  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+tick_id;
+                },
+                error: (error) => {
+                    console.log(error);
+                }
+              });
+            }
+          },
+          error: (error) => {
+              console.log(error);
+          }
+          });
+      }
+    }
+  }
+  else 
+  {
+    $.ajax({
+      url: "/generateticket/",
+      type: "POST",
+      dataType: "json",
+      async: false,
+      data:{
+        'task_amount':task_amount.value,
+        'easy_amount':easy_amount.value,
+        'middle_amount':middle_amount.value,
+        'hard_amount':hard_amount.value,
+        'easy_points':easy_points.value,
+        'middle_points':middle_points.value,
+        'hard_points':hard_points.value,
+        'cd_id':cd_id.value,
+        'id':user_id.value,
+        'check':1
+      },
+      success: (data) => {
+        alert("Билет успешно сгенерирован! Вы будет перенаправлены в окно для просмотра и изменения созданного билета. Билет уже создан, его не обязательно сохранять.");
+        var tick_id=data['tick_id'];
+        var local = location.pathname.split("/");
+        document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+tick_id;
+      },
+      error: (error) => {
+          console.log(error);
+      }
+    });
+
   }
 }
