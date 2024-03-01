@@ -1,19 +1,3 @@
-"""
-URL configuration for curs project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, re_path
 from site1 import views
@@ -32,6 +16,8 @@ urlpatterns = [
     path("addchap/",views.addchap, name="addchap" ),
     path("addtopic/",views.addtopic, name="addtopic" ),
     path("addtask/",views.addtask, name="addtask" ),
+    path("addtest/",views.addtest, name="addtest" ),
+    path("addforum/",views.addforum, name="addforum" ),
     path("addnewticket/",views.addnewticket, name="addnewticket" ),
     path("addconcdisc/",views.addconcdisc, name="addconcdisc" ),
     path("deleteconcdisc/",views.deleteconcdisc, name="deleteconcdisc" ),
@@ -39,7 +25,9 @@ urlpatterns = [
     path("getticketsinfo/",views.getticketsinfo, name="getticketsinfo" ),
     path("generateticket/",views.generateticket, name="generateticket" ),
     path("deletetopic/",views.deletetopic, name="deletetopic" ),
+    path("deleteforum/",views.deleteforum, name="deleteforum" ),
     path("deletetask/",views.deletetask, name="deletetask" ),
+    path("deletetest/",views.deletetest, name="deletetest" ),
     path("deleteticket/",views.deleteticket, name="deleteticket" ),
     path("student/<int:id>/getmail/",views.getmail, name="getmail" ),
     path("lecturer/<int:id>/getmail/",views.getmail, name="getmail" ),
@@ -48,10 +36,27 @@ urlpatterns = [
     path("lecturer/<int:id>/saveuser/",views.saveuser, name="saveuser" ),
     path("getfacdir/",views.getfacdir, name="getfacdir" ),
     path("getlogpass/",views.getlogpass, name="getlogpass" ),
+    path("changeanswer/",views.changeanswer, name="changeanswer" ),
+    path("addnewcomment/",views.addnewcomment, name="addnewcomment" ),
     path("student/<int:id>/lk",views.gotocab, name="gotocab" ),
+    path("student/<int:id>/forum",views.gotoforum, name="gotoforum" ),
+    path("lecturer/<int:id>/forum",views.gotoforum, name="gotoforum" ),
+    path("student/<int:id>/forum_<int:forum_id>",views.gotochangeforum, name="gotochangeforum" ),
+    path("lecturer/<int:id>/forum_<int:forum_id>",views.gotochangeforum, name="gotochangeforum" ),
+    path("student/<int:id>/forum/<int:forum_id>",views.gotocomments, name="gotocomments" ),
+    path("lecturer/<int:id>/forum/<int:forum_id>",views.gotocomments, name="gotocomments" ),
+    path("student/<int:id>/forum/new",views.gotocreateforum, name="gotocreateforum" ),
+    path("lecturer/<int:id>/forum/new",views.gotocreateforum, name="gotocreateforum" ),
     path("lecturer/<int:id>/lk/course", views.gotocurs,name="gotocurs"),
+    path("student/<int:id>/lk/course", views.gotocursstudent,name="gotocursstudent"),
+    path("student/<int:id>/lk/course/<int:cd_id>", views.gotocdstudent,name="gotocdstudent"),
+    path("student/<int:id>/lk/course/<int:cd_id>/test/<int:test_id>", views.gototeststudent,name="gototeststudent"),
+    path("student/<int:id>/lk/course/<int:cd_id>/test/<int:test_id>/task_<int:task_id>", views.gototaskstudent,name="gototaskstudent"),
     path("lecturer/<int:id>/lk/course/<int:cd_id>", views.gotocd,name="gotocd"),
     path("lecturer/<int:id>/lk/course/<int:cd_id>/tests", views.gotocdtests,name="gotocdtests"),
+    path("lecturer/<int:id>/lk/course/<int:cd_id>/tests/<int:test_id>", views.gototest,name="gototest"),
+    path("lecturer/<int:id>/lk/course/<int:cd_id>/tests/<int:test_id>_change", views.gotochangetest,name="gotochangetest"),
+    path("lecturer/<int:id>/lk/course/<int:cd_id>/tests/new", views.gotocreatetest,name="gotocreatetest"),
     path("lecturer/<int:id>/lk/course/<int:cd_id>/tickets", views.gotocdtickets,name="gotocdtickets"),
     path("lecturer/<int:id>/lk/course/<int:cd_id>/tickets/new", views.newticket,name="newticket"),
     path("lecturer/<int:id>/lk/course/<int:cd_id>/tickets/generate", views.gotogenerateticket,name="gotogenerateticket"),

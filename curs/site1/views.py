@@ -17,16 +17,21 @@ from .models import Test
 from .models import Ticket
 from .models import Tickettasks
 from .models import Lectureranswer
+from .models import Studentanswer
+from .models import Result
+from .models import Forum
+from .models import Comment
 from django.db import connection
 import string
 import random
 import secrets
+from datetime import datetime
 from django.http import HttpResponseBadRequest, JsonResponse, HttpResponse
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 def index(request): 
-    return render(request, "index.html")  
+    return HttpResponseRedirect('/enter')
 
 def registration(request): 
     return render(request, "registration.html")  
@@ -65,6 +70,119 @@ def gotocd(request,id,cd_id):
 
 
             return render(request, "lec_cd.html", {"id": id,"cd_id":cd_id,"ch_info":ch_info})  
+        else:
+            return HttpResponseRedirect('/enter')  
+    else:
+        return HttpResponseRedirect('/enter') 
+
+def gotocdstudent(request,id,cd_id): 
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            tests = Test.objects.filter(id_conc_disc=cd_id).order_by('id_test')
+            tst_all = {}
+            tst_info=[]
+            for t in tests:
+                tst_id=t.id_test
+                tst_name=t.name
+                tst_all={'tst_id':tst_id,'tst_name':tst_name}
+                tst_info.append(tst_all)
+
+
+
+            return render(request, "st_cd.html", {"id": id,"cd_id":cd_id,"tst_info":tst_info})  
+        else:
+            return HttpResponseRedirect('/enter')  
+    else:
+        return HttpResponseRedirect('/enter') 
+
+def gototeststudent(request,id,cd_id,test_id): 
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            if Result.objects.filter(id_user=id,id_test=test_id).count()<1:
+                newres=Result(rating=0,id_lec=Test.objects.get(id_test=test_id).id_lec,id_stud=Student.objects.get(id_user=id),id_test=Test.objects.get(id_test=test_id),id_user1=Test.objects.get(id_test=test_id).id_user,id_user=id,date_reg=datetime.now())
+                newres.save()
+            res=Result.objects.get(id_user=id,id_test=test_id)
+            tst = Test.objects.get(id_test=test_id)
+            task_used_info=[]
+            tt=Tickettasks.objects.filter(id_tick=tst.id_tick)
+            for t in tt:
+                tsk=Task.objects.get(id_task=t.id_task.id_task)
+                task_id=tsk.id_task
+                if Studentanswer.objects.filter(id_test=test_id,id_res=res.id_res,id_task=task_id).count()>0:
+                    ansname=Studentanswer.objects.get(id_test=test_id,id_res=res.id_res,id_task=task_id).answer
+                else:
+                    Studentanswer.objects.create(id_res=res,id_test=Test.objects.get(id_test=test_id).id_test,id_task=Task.objects.get(id_task=task_id),id_top=tsk.id_top.id_top,id_chap=tsk.id_chap,id_conc_disc=tsk.id_conc_disc,id_disc=tsk.id_disc,answer="")
+                    ansname=""
+                
+                task_quest=tsk.question
+                task_points=t.value
+                task_used={'task_id':task_id,'task_quest':task_quest,'task_points':task_points,"ansname":ansname}
+                task_used_info.append(task_used)
+            return render(request, "st_maintest.html", {"id": id,"cd_id":cd_id,"task_used_info":task_used_info,"test_id":test_id})  
+        else:
+            return HttpResponseRedirect('/enter')  
+    else:
+        return HttpResponseRedirect('/enter') 
+    
+def gototest(request,id,cd_id,test_id): 
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            result_info=[]
+            res=Result.objects.filter(id_test=test_id)
+            maxpoint=0
+            tick=Ticket.objects.get(id_tick=Test.objects.get(id_test=test_id).id_tick.id_tick)
+            tt=Tickettasks.objects.filter(id_tick=tick)
+            for t in tt:
+                maxpoint+=t.value
+            for r in res:
+                surname=User.objects.get(id_user=r.id_user).surname
+                name=User.objects.get(id_user=r.id_user).name
+                rating=int(r.rating)/maxpoint*100
+                rating=float('{:.2f}'.format(rating))
+                result_used={'surname':surname,'name':name,'rating':rating}
+                result_info.append(result_used)
+            return render(request, "test_results.html", {"id": id,"cd_id":cd_id,"test_id":test_id,"result_info":result_info})  
+        else:
+            return HttpResponseRedirect('/enter')  
+    else:
+        return HttpResponseRedirect('/enter') 
+
+def gototaskstudent(request,id,cd_id,test_id,task_id): 
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            tsk=Task.objects.get(id_task=task_id)
+            tasks=Tickettasks.objects.filter(id_tick=Test.objects.get(id_test=test_id).id_tick).order_by("id_task")
+            next=-1
+            prev=-1
+            if tasks.count()>1:
+                if task_id==tasks[0].id_task.id_task:
+                    next=tasks[1].id_task.id_task
+                    prev=-1
+                elif task_id==tasks[tasks.count()-1].id_task.id_task:
+                    next=-1
+                    prev=tasks[tasks.count()-2].id_task.id_task
+                else:
+                    for count,t in enumerate(tasks):
+                        if t.id_task.id_task==task_id:
+                            next=tasks[count+1].id_task.id_task
+                            prev=tasks[count-1].id_task.id_task
+            else:
+                next=-1
+                prev=-1
+            if tsk.id_type.id_type==1:
+                ttask=1
+                la=Lectureranswer.objects.filter(id_task=task_id)
+                lec_ans=[]
+                for l in la:
+                    lec_ans.append(l.answer)
+                random.shuffle(lec_ans)
+            else:
+                ttask=2
+                lec_ans=0
+            question=tsk.question
+            res=Result.objects.get(id_user=id,id_test=test_id)
+            answer=Studentanswer.objects.get(id_res=res,id_test=test_id,id_task=task_id).answer
+            return render(request, "st_task.html", {"id": id,"cd_id":cd_id,"test_id":test_id,"task_id":task_id,"ttask":ttask,"question":question,"answer":answer,"lec_ans":lec_ans,"next":next,"prev":prev})  
         else:
             return HttpResponseRedirect('/enter')  
     else:
@@ -217,7 +335,43 @@ def changetask(request,id,cd_id,chap_id,topic_id,task_id):
     else:
         return HttpResponseRedirect('/enter') 
 
+def gotochangetest(request,id,cd_id,test_id): 
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            tick=Ticket.objects.filter(id_conc_disc=cd_id)
+            tick_all = {}
+            tick_info=[]
+            for t in tick:
+                tick_id=t.id_tick
+                tick_all={'tick_id':tick_id}
+                tick_info.append(tick_all)
+            test=Test.objects.get(id_test=test_id)
+            name=test.name
+            cur_tick=test.id_tick
 
+            return render(request, "test_create.html", {"id": id,"cd_id":cd_id,"tick_info":tick_info,"test_id":test_id,"name":name,"cur_tick":cur_tick,})  
+        else:
+            return HttpResponseRedirect('/enter')  
+    else:
+        return HttpResponseRedirect('/enter') 
+
+def gotocreatetest(request,id,cd_id): 
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            tick=Ticket.objects.filter(id_conc_disc=cd_id)
+            tick_all = {}
+            tick_info=[]
+            for t in tick:
+                tick_id=t.id_tick
+                tick_all={'tick_id':tick_id}
+                tick_info.append(tick_all)
+
+
+            return render(request, "test_create.html", {"id": id,"cd_id":cd_id,"tick_info":tick_info,"test_id":"test_id",})  
+        else:
+            return HttpResponseRedirect('/enter')  
+    else:
+        return HttpResponseRedirect('/enter') 
 
 def createtask(request,id,cd_id,chap_id,topic_id): 
     if Token.objects.filter(id_user=id).count()!=0:
@@ -235,6 +389,84 @@ def createtask(request,id,cd_id,chap_id,topic_id):
             return HttpResponseRedirect('/enter')  
     else:
         return HttpResponseRedirect('/enter') 
+
+def gotocomments(request,id,forum_id): 
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            f1=Forum.objects.get(id_forum=forum_id)
+            name=f1.name
+            description=f1.description
+            messages=Comment.objects.filter(id_forum=forum_id).order_by("date_reg")
+            message_all = {}
+            message_info=[]
+            for m in messages:
+                usr=User.objects.get(id_user=m.id_user.id_user)
+                username=usr.surname+" "+usr.name
+                text=m.text
+                if usr==f1.id_user:
+                    iscreate=1
+                else:
+                    iscreate=0
+                date=m.date_reg
+                message_all={'username':username,"text":text,"iscreate":iscreate,"date":date}
+                message_info.append(message_all)
+
+            return render(request, "forum_comments.html", {"id": id,"forum_id":forum_id,"name":name,"description":description,"message_info":message_info})  
+        else:
+            return HttpResponseRedirect('/enter')  
+    else:
+        return HttpResponseRedirect('/enter') 
+
+def gotocreateforum(request,id): 
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            if Student.objects.filter(id_user=id).count()>0:
+                dir=Direction.objects.filter(id_dir=Student.objects.get(id_user=id).id_dir.id_dir)
+                disc=Concretediscipline.objects.filter(id_dir=Student.objects.get(id_user=id).id_dir.id_dir)
+            else:
+                dir=Direction.objects.filter(id_dep=Lecturer.objects.get(id_user=id).id_dep)
+                disc=Concretediscipline.objects.filter(id_user=id)
+            
+            dir_names=[]
+            disc_names=[]
+            for d in dir:
+                dir_names.append(d.name)
+            for d in disc:
+                disc_names.append(d.id_disc.name)
+            
+            return render(request, "forum_create.html", {"id": id,"dir_names":dir_names,"disc_names":disc_names,"forum_id":"forum_id"})  
+        else:
+            return HttpResponseRedirect('/enter')  
+    else:
+        return HttpResponseRedirect('/enter') 
+    
+def gotochangeforum(request,id,forum_id): 
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            if Student.objects.filter(id_user=id).count()>0:
+                dir=Direction.objects.filter(id_dir=Student.objects.get(id_user=id).id_dir.id_dir)
+                disc=Concretediscipline.objects.filter(id_dir=Student.objects.get(id_user=id).id_dir.id_dir)
+            else:
+                dir=Direction.objects.filter(id_dep=Lecturer.objects.get(id_user=id).id_dep)
+                disc=Concretediscipline.objects.filter(id_user=id)
+            
+            dir_names=[]
+            disc_names=[]
+            for d in dir:
+                dir_names.append(d.name)
+            for d in disc:
+                disc_names.append(d.id_disc.name)
+            f1=Forum.objects.get(id_forum=forum_id)
+            cur_disc_name=Discipline.objects.get(id_disc=f1.id_disc).name
+            cur_dir_name=Direction.objects.get(id_dir=Concretediscipline.objects.get(id_conc_disc=f1.id_conc_disc.id_conc_disc).id_dir.id_dir).name
+            name=f1.name
+            description=f1.description
+            return render(request, "forum_create.html", {"id": id,"dir_names":dir_names,"disc_names":disc_names,"forum_id":forum_id,"cur_disc_name":cur_disc_name,"cur_dir_name":cur_dir_name,"name":name,"description":description})  
+        else:
+            return HttpResponseRedirect('/enter')  
+    else:
+        return HttpResponseRedirect('/enter') 
+
 
 def change_curs(request,id,cd_id):
     if Token.objects.filter(id_user=id).count()!=0:
@@ -360,6 +592,26 @@ def gotocurs(request,id):
     else:
         return HttpResponseRedirect('/enter')     
 
+def gotocursstudent(request,id):
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            stud=Student.objects.get(id_user=id)
+            cd = Concretediscipline.objects.filter(id_dir=stud.id_dir)
+            cd_all = {}
+            cd_info=[]
+            for c in cd:
+                cd_id=c.id_conc_disc
+                cd_disc=Discipline.objects.only('name').get(id_disc=c.id_disc.id_disc).name
+                cd_all={'cd_id':cd_id,'cd_disc':cd_disc}
+                cd_info.append(cd_all)
+            
+
+
+            return render(request, "st_curs.html",{'cd_info':cd_info,"id": id,})
+        else:
+            return HttpResponseRedirect('/enter')   
+    else:
+        return HttpResponseRedirect('/enter')  
 
 def newcurs(request,id):
     if Token.objects.filter(id_user=id).count()!=0:
@@ -479,6 +731,34 @@ def gotocab(request,id):
     else:
         return HttpResponseRedirect('/enter')   
   
+def gotoforum(request,id):
+    if Token.objects.filter(id_user=id).count()!=0:
+        if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+            usr=User.objects.filter(id_user=id)
+            forum_all = {}
+            forum_info=[]
+            usr_forum_all = {}
+            usr_forum_info=[]
+            forums=Forum.objects.all()
+            for f in forums:
+                if f.id_user==User.objects.get(id_user=id):
+                    forum_name=f.name
+                    forum_id=f.id_forum
+                    forum_disc=Discipline.objects.get(id_disc=f.id_disc).name
+                    usr_forum_all={"forum_name":forum_name,"forum_id":forum_id,"forum_disc":forum_disc}
+                    usr_forum_info.append(usr_forum_all)
+                else:
+                    forum_name=f.name
+                    forum_id=f.id_forum
+                    forum_disc=Discipline.objects.get(id_disc=f.id_disc).name
+                    forum_all={"forum_name":forum_name,"forum_id":forum_id,"forum_disc":forum_disc}
+                    forum_info.append(forum_all)
+
+            return render(request, "user_forum.html", {"id": id,"forum_info":forum_info,"usr_forum_info":usr_forum_info})
+        else:
+            return HttpResponseRedirect('/enter')   
+    else:
+        return HttpResponseRedirect('/enter')    
 
 def getmail(request,id):
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -547,6 +827,55 @@ def adddisc(request):
             newdisc = Discipline(name=name)
             newdisc.save()
             return HttpResponse("POST request")
+@csrf_exempt      
+def addforum(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'POST':
+            name = request.POST.get('name') 
+            id = request.POST.get('id') 
+            forum_id = request.POST.get('forum_id') 
+            dir = request.POST.get('dir') 
+            disc = request.POST.get('disc') 
+            description = request.POST.get('description') 
+            if forum_id=="forum_id":
+                newforum=Forum(name=name,description=description,date_reg=datetime.now(),id_user=User.objects.get(id_user=id),id_disc=Discipline.objects.get(name=disc).id_disc,id_conc_disc=Concretediscipline.objects.get(id_disc=Discipline.objects.get(name=disc),id_dir=Direction.objects.get(name=dir)))
+                newforum.save()
+            else:
+                newforum=Forum.objects.get(id_forum=forum_id)
+                newforum.name=name
+                newforum.description=description
+                newforum.id_disc=Discipline.objects.get(name=disc).id_disc
+                newforum.id_conc_disc=Concretediscipline.objects.get(id_disc=Discipline.objects.get(name=disc),id_dir=Direction.objects.get(name=dir))
+                newforum.save()
+            return HttpResponse("POST request")   
+        
+@csrf_exempt      
+def addnewcomment(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'POST':
+            id_forum = request.POST.get('id_forum') 
+            id = request.POST.get('id') 
+            message = request.POST.get('message') 
+            newcomm=Comment(text=message,id_user=User.objects.get(id_user=id),id_forum=Forum.objects.get(id_forum=id_forum),date_reg=datetime.now())
+            newcomm.save()
+            return HttpResponse("POST request")   
+  
+@csrf_exempt      
+def changeanswer(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'POST':
+            user_id = request.POST.get('user_id') 
+            task_id = request.POST.get('task_id') 
+            test_id = request.POST.get('test_id') 
+            newans = request.POST.get('newans')
+            res=Result.objects.get(id_user=user_id,id_test=test_id)  
+            studans=Studentanswer.objects.get(id_task=task_id,id_res=res)
+            studans.answer=newans
+            studans.save()
+            return HttpResponse("POST request")       
         
 @csrf_exempt      
 def generateticket(request):
@@ -634,6 +963,32 @@ def addnewticket(request):
             return HttpResponse("POST request")
         
 @csrf_exempt      
+def addtest(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'POST':
+            id = request.POST.get('id')
+            cd_id = request.POST.get('cd_id')  
+            name= request.POST.get('name')  
+            ticket= request.POST.get('ticket') 
+            test_id = request.POST.get('test_id')  
+            user=User.objects.get(id_user=id)
+            cd=Concretediscipline.objects.get(id_conc_disc=cd_id)
+            if test_id=="test_id":
+                c = connection.cursor()
+                c.execute("BEGIN")
+                c.callproc("CreateTest", [cd.id_disc.name,cd.id_dir.name,user.login,name,ticket])
+                c.execute("COMMIT") 
+                c.close()  
+            else:
+                test_id=int(test_id)
+                newtest=Test.objects.get(id_test=test_id)
+                newtest.name=name
+                newtest.id_tick=Ticket.objects.get(id_tick=ticket)
+                newtest.save()
+            return HttpResponse("POST request")
+        
+@csrf_exempt      
 def deleteconcdisc(request):
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     if is_ajax:
@@ -645,6 +1000,17 @@ def deleteconcdisc(request):
                     Concretediscipline.objects.get(id_conc_disc=conc_id).delete()
     return HttpResponse("POST request")
 
+@csrf_exempt      
+def deletetest(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'POST':
+            id = request.POST.get('id')  
+            test_id = request.POST.get('test_id')  
+            if Token.objects.filter(id_user=id).count()!=0:
+                if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+                    Test.objects.get(id_test=test_id).delete()
+    return HttpResponse("POST request")
 
 @csrf_exempt      
 def deletechapter(request):
@@ -670,6 +1036,17 @@ def deletetopic(request):
                     Topic.objects.get(id_top=topic).delete()
     return HttpResponse("POST request")
 
+@csrf_exempt      
+def deleteforum(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'POST':
+            id = request.POST.get('id')  
+            forum = request.POST.get('forum_id')  
+            if Token.objects.filter(id_user=id).count()!=0:
+                if request.COOKIES.get('token')==Token.objects.only('token').get(id_user=id).token:
+                    Forum.objects.get(id_forum=forum).delete()
+    return HttpResponse("POST request")
 
 @csrf_exempt      
 def deletetask(request):

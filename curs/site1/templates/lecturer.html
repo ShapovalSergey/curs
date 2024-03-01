@@ -4,8 +4,9 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Похуй, текст</title>
+<title>Rudius: Главная</title>
 <link rel="stylesheet" href="{% static 'css/cabinet.css' %}">
+<link rel="stylesheet" href="{% static 'css/reg.css' %}">
 <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
@@ -18,11 +19,14 @@
             <div class="navi_columns">
             <div class="navi_button" onclick="gotomain()" style="border: 2px solid rgb(255, 255, 255);">Главная</div>
             <div class="navi_button" onclick="gotocab()">Кабинет</div>
-            <div class="navi_button" onclick="">Форум</div>
+            <div class="navi_button" onclick="gotoforum()">Форум</div>
             <div class="navi_button" onclick="gotocurs()">Курсы</div>
             </div>
         </div>
-
+        <div class="curs_create_field">
+            <div class="main_title">Новости!</div>
+            <div class="main_title" style="position: absolute; top:20%; font-size: 24px;"> (Раздел для дальнейшего усовершенствования)</div>
+        </div>
 
 
     </div>

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rudius: Тестирования: {{title}}</title>
+<title>Rudius: Дисциплины</title>
 <link rel="stylesheet" href="{% static 'css/cabinet.css' %}">
 <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -12,11 +12,8 @@
 </head>
 <body style='overflow-x:hidden; margin:0%'>
     <input type="hidden" class="id" value="{{id}}" id="id">
-    <input type="hidden" class="id" value="{{cd_id}}" id="cd_id">
     <div class="main_cab">
         <div class="exit" onclick="exit()"><img src="{% static "images/exit.png"%}" ></div>
-        <div class="create" onclick="gotocreatetest()"><div class="create_text">Создать тестирование</div></div>
-        <div class="exit" onclick="backtocurs()" style="margin-left:0.5%;margin-top:3%;"><img src="{% static "images/go-back-arrow.png"%}" ></div>
         <div class="navigation">
             <div class="navi_columns">
             <div class="navi_button" onclick="gotomain()">Главная</div>
@@ -28,11 +25,9 @@
 
 
         <div class="curs_field">
-            {% for t in test_info %}
-            <div class="curs_row" id="{{t.test_id}}">
-                <div class="disc_name" onclick="gototest({{t.test_id}})">{{t.test_name}}</div>
-                <div class="change_name" onclick="delete_test({{t.test_id}})" style="margin-top:20%;">Удалить</div>
-                <div class="change_name" onclick="gotochangetest({{t.test_id}})" style="margin-top:-20%;">Изменить</div>
+            {% for c in cd_info %}
+            <div class="curs_row" id="{{c.cd_id}}">
+                <div class="disc_name" onclick="gotocd({{c.cd_id}})" style="grid-column-start: 4;grid-column-end: 6;">{{c.cd_disc}}</div>
             </div>
             {% endfor %}
         </div>

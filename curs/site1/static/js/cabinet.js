@@ -5,6 +5,24 @@ function gotocab()
     document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/lk";
 }
 
+function gotoforum()
+{
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/forum";
+}
+
+function gotoconcreteforum(forum_id)
+{
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+forum_id;
+}
+
+function gotochangeforum(forum_id)
+{
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/forum_"+forum_id;
+}
+
 function backtochap()
 {
     id=document.getElementById("id").getAttribute("value");
@@ -18,11 +36,40 @@ function backtotopic()
     var local = location.pathname.split("/");
     document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6];
 }
+
 function gototopic(topic_id)
 {
     id=document.getElementById("id").getAttribute("value");
     var local = location.pathname.split("/");
     document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+topic_id;
+}
+
+function gototest(test_id)
+{
+    id=document.getElementById("id").getAttribute("value");
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+test_id;
+}
+
+function gototaskst(task_id)
+{
+    id=document.getElementById("id").getAttribute("value");
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+local[7]+"/task_"+task_id;
+}
+
+function gototeststudent(test_id)
+{
+    id=document.getElementById("id").getAttribute("value");
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/test/"+test_id;
+}
+
+function backtomaintest()
+{
+    id=document.getElementById("id").getAttribute("value");
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+local[7];
 }
 
 function backtotickets()
@@ -47,11 +94,21 @@ function backtochapter()
 }
 function backtotask()
 {
-    id=document.getElementById("id").getAttribute("value");
     var local = location.pathname.split("/");
     document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+local[7];
 }
 
+function backtotick()
+{
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6];
+}
+
+function backtoforum()
+{
+    var local = location.pathname.split("/");
+    document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/forum";
+}
 
 function gotocreatetask()
 {
@@ -77,6 +134,18 @@ function gotocdtests(cd_id)
   id=document.getElementById("id").getAttribute("value");
   var local = location.pathname.split("/");
   document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/lk/course/"+cd_id+"/tests";
+}
+
+function gotocreatetest()
+{
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/new";
+}
+
+function gotocreateforum()
+{
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/new";
 }
 
 function gotocreateticket()
@@ -146,6 +215,13 @@ function gotochangetask(task_id)
   id=document.getElementById("id").getAttribute("value");
   var local = location.pathname.split("/");
   document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+local[7]+"/"+task_id+"_change";
+}
+
+function gotochangetest(test_id)
+{
+  id=document.getElementById("id").getAttribute("value");
+  var local = location.pathname.split("/");
+  document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/"+local[3]+"/"+local[4]+"/"+local[5]+"/"+local[6]+"/"+test_id+"_change";
 }
 
 function gotochangecd(cd_id)
@@ -347,6 +423,58 @@ function createdisc()
     }
 }
 
+function savenewtest()
+{
+    var error = document.getElementById("error_label"); 
+    error.style.visibility="hidden";
+    var ticket = document.getElementById("sel"); 
+    var id=document.getElementById("id"); 
+    var name=document.getElementById("name"); 
+    var cd_id=document.getElementById("cd_id"); 
+    var test_id=document.getElementById("test_id"); 
+    if (ticket.value=="") 
+    {
+        error.style.visibility="visible";
+        error.textContent="Отсутствует билет!";
+        setTimeout(function(){
+          error.style.visibility="hidden";
+      }, 2500);
+    }
+    else if (name.value=="")
+    {
+      error.style.visibility="visible";
+      error.textContent="Отсутствует название тестирования!";
+      setTimeout(function(){
+        error.style.visibility="hidden";
+    }, 2500);
+    }
+    else 
+    {
+      $.ajax({
+        url: "/addtest/",
+        type: "POST",
+        dataType: "json",
+        async: false,
+        data:{
+          'name':name.value,
+          'ticket':ticket.value,
+          'test_id':test_id.value,
+          'id': id.value,
+          'cd_id': cd_id.value,
+        },
+        success: (data) => {
+          console.log(success);
+        },
+        error: (error) => {
+            console.log(error);
+        }
+      });
+      var local = location.pathname.split("/");
+      backtotick()
+    }
+}
+
+
 function savenewconcdisc()
 {
     var error = document.getElementById("error_label1"); 
@@ -396,6 +524,56 @@ function savenewconcdisc()
       var local = location.pathname.split("/");
       document.location.href=local[0]+"/"+local[1]+"/"+local[2]+"/lk/course";
     }
+}
+
+function delete_forum(id)
+{
+  if (confirm("Вы точно хотите удалить форум?\n(данное действие нельзя отменить)"))
+  {
+  user_id=document.getElementById("id"); 
+  $.ajax({
+    url: "/deleteforum/",
+    type: "POST",
+    dataType: "json",
+    async: false,
+    data:{
+      'forum_id': id,
+      'id':user_id.value,
+    },
+    success: (data) => {
+      console.log(success);
+    },
+    error: (error) => {
+        console.log(error);
+    }
+  });
+  window.location.reload();
+  }
+}
+
+function delete_test(id)
+{
+  if (confirm("Вы точно хотите удалить тестирование?\n(данное действие нельзя отменить)"))
+  {
+  user_id=document.getElementById("id"); 
+  $.ajax({
+    url: "/deletetest/",
+    type: "POST",
+    dataType: "json",
+    async: false,
+    data:{
+      'test_id': id,
+      'id':user_id.value,
+    },
+    success: (data) => {
+      console.log(success);
+    },
+    error: (error) => {
+        console.log(error);
+    }
+  });
+  window.location.reload();
+  }
 }
 
 function delete_cd(id)
@@ -561,6 +739,50 @@ function delete_topic(id)
 }
 
 
+function savenewforum()
+{
+    var error = document.getElementById("error_label"); 
+    error.style.visibility="hidden";
+    var id=document.getElementById("id"); 
+    var forum_id=document.getElementById("forum_id");
+    var dir = document.getElementById("sel_dir"); 
+    var disc = document.getElementById("sel_disc");
+    var name= document.getElementById("name");
+    var description= document.getElementById("description").value;
+
+    if (name.value=="") 
+    {
+        error.style.visibility="visible";
+        error.textContent="Отсутствует название форума!";
+        setTimeout(function(){
+          error.style.visibility="hidden";
+      }, 2500);
+    }
+    else 
+    {
+      $.ajax({
+        url: "/addforum/",
+        type: "POST",
+        dataType: "json",
+        async: false,
+        data:{
+          'name':name.value,
+          'dir':dir.value,
+          'disc':disc.value,
+          'forum_id':forum_id.value,
+          'id': id.value,
+          'description':description,
+        },
+        success: (data) => {
+          console.log(success);
+        },
+        error: (error) => {
+            console.log(error);
+        }
+      });
+      backtoforum();
+    }
+}
 
 function savenewtask()
 {
@@ -746,6 +968,43 @@ function deletetaskfromticket(id_task,question)
   element.setAttribute("id","task_"+id_task);
   element.textContent=question;
   rootDiv.appendChild(element);
+}
+
+function savenewcomment()
+{
+  id_forum=document.getElementById("forum_id").value;
+  user_id=document.getElementById("id");
+  message=document.getElementById("message").value;
+  var error = document.getElementById("error_label"); 
+  if(message=="")
+  {
+    error.style.visibility="visible";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
+  }
+  else
+  {
+    $.ajax({
+      url: "/addnewcomment/",
+      type: "POST",
+      dataType: "json",
+      async: false,
+      data:{
+        'id_forum': id_forum,
+        'message': message,
+        'id':user_id.value,
+      },
+      success: (data) => {
+        console.log(success);
+      },
+      error: (error) => {
+          console.log(error);
+      }
+    });
+
+    window.location.reload();
+  }
 }
 
 function savenewticket()
@@ -987,4 +1246,50 @@ function generateticket()
     });
 
   }
+}
+
+function saveanswer()
+{
+  var error = document.getElementById("error_label"); 
+  ttask=document.getElementById("ttask").value;
+  user_id=document.getElementById("id").value;
+  task_id=document.getElementById("task_id").value;
+  test_id=document.getElementById("test_id").value;
+  if(ttask==1)
+  {
+    buttons=document.getElementsByClassName("rbutton");
+    for (var i = 0; i < buttons.length; i++)
+    {
+      if (buttons[i].checked)
+      {
+        newans=buttons[i].getAttribute("value");
+      }
+    }
+  }
+  else
+  {
+    newans=document.getElementById("answer").value;
+  }
+  $.ajax({
+    url: "/changeanswer/",
+    type: "POST",
+    dataType: "json",
+    async: false,
+    data:{
+      "user_id":user_id,
+      "task_id":task_id,
+      "test_id":test_id,
+      "newans":newans,
+    },
+    success: (data) => {
+      console.log(success);
+    },
+    error: (error) => {
+        console.log(error);
+    }
+  });
+  error.style.visibility="visible";
+  setTimeout(function(){
+    error.style.visibility="hidden";
+}, 2500);
 }

@@ -124,33 +124,51 @@ function register()
   var select1 = document.getElementById("select1"); 
   if (email.value=="") 
   {
-    error.style.visibility="visible";
     error.textContent="Отсутствует электронная почта!";
+    error.style.visibility="visible";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
   }
   else if (login.value=="") 
   {
     error.style.visibility="visible";
     error.textContent="Отсутствует логин!";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
   }
   else if (password1.value=="") 
   {
     error.style.visibility="visible";
     error.textContent="Отсутствует пароль!";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
   }
   else if (password2.value!=password1.value) 
   {
     error.style.visibility="visible";
     error.textContent="Пароли не совпадают!";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
   }
   else if ((stud.getAttribute("value")!="active")&&(lec.getAttribute("value")!="active"))
   {
     error.style.visibility="visible";
     error.textContent="Не выбран тип пользователя!";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
   }
   else if (select1.value=="") 
   {
     error.style.visibility="visible";
     error.textContent="Не выбрано направление или кафедра!";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
   }
   else
   {
@@ -170,11 +188,17 @@ function register()
           {
             error.style.visibility="visible";
             error.textContent="Данная почта уже использована!";
+            setTimeout(function(){
+              error.style.visibility="hidden";
+          }, 2500);
           } 
           else if (log==1)
           {
             error.style.visibility="visible";
             error.textContent="Данный логин уже использован!";
+            setTimeout(function(){
+              error.style.visibility="hidden";
+          }, 2500);
           }
           else
           {
@@ -206,13 +230,13 @@ function register()
                   console.log(error);
               }
             });
+            document.location.href="enter";
           }
       },
       error: (error) => {
           console.log(error);
       }
       });
-      document.location.href="enter";
   }
 
 }
@@ -228,11 +252,17 @@ function enter()
   {
     error.style.visibility="visible";
     error.textContent="Отсутствует логин!";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
   }
   else if (password.value=="") 
   {
     error.style.visibility="visible";
     error.textContent="Отсутствует пароль!";
+    setTimeout(function(){
+      error.style.visibility="hidden";
+  }, 2500);
   }
   else 
   {
@@ -254,11 +284,17 @@ function enter()
         {
           error.style.visibility="visible";
           error.textContent="Введенного логина не существует!";
+          setTimeout(function(){
+            error.style.visibility="hidden";
+        }, 2500);
         }
         else if (pass==0) 
         {
           error.style.visibility="visible";
           error.textContent="Неправильный пароль!";
+          setTimeout(function(){
+            error.style.visibility="hidden";
+        }, 2500);
         }
         else 
         {

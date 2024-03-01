@@ -1,0 +1,72 @@
+<!doctype html>
+{% load static %}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rudius: Тестирование </title>
+<link rel="stylesheet" href="{% static 'css/cabinet.css' %}">
+<link rel="stylesheet" href="{% static 'css/reg.css' %}">
+<link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+</head>
+<body style='overflow-x:hidden; margin:0%'>
+    <input type="hidden" class="id" value="{{id}}" id="id">
+    <input type="hidden" class="id" value="{{cd_id}}" id="cd_id">
+    <input type="hidden" class="id" value="{{task_id}}" id="task_id">
+    <input type="hidden" class="id" value="{{test_id}}" id="test_id">
+    <input type="hidden" class="id" value="{{ttask}}" id="ttask">
+    <div class="main_cab">
+        <div class="exit" onclick="exit()"><img src="{% static "images/exit.png"%}" ></div>
+        <div class="exit" onclick="backtomaintest()" style="margin-left:0.5%;margin-top:3%;"><img src="{% static "images/go-back-arrow.png"%}" ></div>
+        <div class="navigation">
+            <div class="navi_columns">
+            <div class="navi_button" onclick="gotomain()">Главная</div>
+            <div class="navi_button" onclick="gotocab()">Кабинет</div>
+            <div class="navi_button" onclick="gotoforum()">Форум</div>
+            <div class="navi_button" onclick="gotocurs()" style="border: 2px solid rgb(255, 255, 255);">Курсы</div>
+            </div>
+        </div>
+
+        <div class="curs_create_field">
+            {% if ttask == 1 %}
+            <div class="main_title" style="top: 0%;">Выберите один правильный ответ <br>(обязательно сохраните ответ!)</div>
+            <div class="question_field" style="height:10%;"> {{question}} </div>
+            <div class="radio_window">
+            {% for l in lec_ans %}
+            {% if l == answer %}
+            <div class="form_radio">
+                <input class="rbutton" id="ans_{{l}}" type="radio" name="radio" value="{{l}}" checked>
+                <label for="ans_{{l}}">{{l}}</label>
+            </div>
+            {%else%}
+            <div class="form_radio">
+                <input class="rbutton" id="ans_{{l}}" type="radio" name="radio" value="{{l}}">
+                <label for="ans_{{l}}">{{l}}</label>
+            </div>
+            {%endif%}
+            {% endfor %}
+            </div>
+            {%else%}
+            <div class="main_title" style="top: 0%;">Введите правильный ответ <br>(обязательно сохраните ответ!)</div>
+            <div class="question_field"> {{question}} </div>
+            <input type="text"  value="{{answer}}" style="position: absolute; top:65%; left:20%;width:57%;margin-left: 0%;margin-top: 0%; font-size: 24px; border: 1px solid rgb(17, 114, 14);border-radius: 0.25rem; height:20px; color:black;background: #56f586;" id="answer"/>
+            {%endif%}
+            <div class="save" onclick="saveanswer()" style="left:40%;">Сохранить</div>
+            {% if next != -1 %}
+            <div class="save" onclick="gototaskst({{next}})" style="left:80%;">Следующий вопрос -&#8250;</div>
+            {%endif%}
+            {% if prev != -1 %}
+            <div class="save" onclick="gototaskst({{prev}})" style="left:0%;">	&#8249;- Предыдущий вопрос</div>
+            {%endif%}
+            </div>
+            <div class="errorlabel" id="error_label" style="margin-left:45%;margin-top:40%;max-width:30%;min-width:10%;position: absolute;color: green">Ответ сохранен!</div>
+        </div>
+
+
+    </div>
+
+    <script src="{% static "js/cabinet.js"%}"></script>
+</body>
+</html>

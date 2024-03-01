@@ -1,0 +1,58 @@
+<!doctype html>
+{% load static %}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rudius: Форумы</title>
+<link rel="stylesheet" href="{% static 'css/cabinet.css' %}">
+<link rel="stylesheet" href="{% static 'css/reg.css' %}">
+<link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+</head>
+<body style='overflow-x:hidden; margin:0%'>
+    <input type="hidden" class="id" value="{{id}}" id="id">
+    <input type="hidden" class="id" value="{{cd_id}}" id="cd_id">
+    <div class="main_cab">
+        <div class="exit" onclick="exit()"><img src="{% static "images/exit.png"%}" ></div>
+        <div class="create" onclick="gotocreateforum()"><div class="create_text">Создать форум</div></div>
+        <div class="navigation">
+            <div class="navi_columns">
+            <div class="navi_button" onclick="gotomain()">Главная</div>
+            <div class="navi_button" onclick="gotocab()">Кабинет</div>
+            <div class="navi_button" onclick="gotoforum()" style="border: 2px solid rgb(255, 255, 255);">Форум</div>
+            <div class="navi_button" onclick="gotocurs()">Курсы</div>
+            </div>
+        </div>
+
+        <div class="main_title" style="position: absolute; top:20%; font-size: 24px;min-width: 50%;"> Все форумы</div>
+        <div class="main_title" style="position: absolute; top:20%; font-size: 24px;min-width: 50%; left: 50%;"> Созданные вами форумы</div>
+        <div class="curs_field" style="width:45%; height: 60%;margin-top: 12%;">
+        
+            
+            {% for f in forum_info %}
+            <div class="curs_row" id="{{f.forum_id}}">
+                <div class="disc_name" style="font-size: 30px;" onclick="gotoconcreteforum({{f.forum_id}})">{{f.forum_name}}</div>
+                <div class="dir_name"style="font-size: 20px;">{{f.forum_disc}}</div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="curs_field" style="width:45%; height: 60%;margin-top: 12%;margin-left: 50%;">
+            
+            {% for f in usr_forum_info %}
+            <div class="curs_row" id="{{c.ch_id}}">
+                <div class="disc_name" style="font-size: 30px;" onclick="gotoconcreteforum({{f.forum_id}})">{{f.forum_name}}</div>
+                <div class="dir_name" style="font-size: 20px;">{{f.forum_disc}}</div>
+                <div class="change_name"  onclick="delete_forum({{f.forum_id}})" style="margin-top:30%;font-size: 18px;margin-right: 10%;">Удалить</div>
+                <div class="change_name"  onclick="gotochangeforum({{f.forum_id}})" style="margin-top:-30%;font-size: 18px;margin-right: 10%;">Изменить</div>
+            </div>
+            {% endfor %}
+        </div>
+
+
+    </div>
+
+    <script src="{% static "js/cabinet.js"%}"></script>
+</body>
+</html>
